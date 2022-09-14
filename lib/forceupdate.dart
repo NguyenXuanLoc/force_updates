@@ -10,27 +10,27 @@ import 'package:flutter/services.dart';
 import 'package:package_info/package_info.dart';
 
 class AppVersionStatus {
-  bool canUpdate;
-  String localVersion;
-  String storeVersion;
-  String appStoreUrl;
-  AppVersionStatus({this.canUpdate, this.localVersion, this.storeVersion});
+  bool? canUpdate;
+  String? localVersion;
+  String? storeVersion;
+  String? appStoreUrl;
+  AppVersionStatus({ this.canUpdate, this.localVersion, this.storeVersion});
 }
 
 class CheckVersion {
-  BuildContext context;
-  String androidId;
-  String iOSId;
+  BuildContext? context;
+  String? androidId;
+  String? iOSId;
 
   CheckVersion({this.androidId, this.iOSId, @required this.context})
       : assert(context != null);
 
-  Future<AppVersionStatus> getVersionStatus({bool checkInBigger = true}) async {
+  Future<AppVersionStatus?> getVersionStatus({bool checkInBigger = true}) async {
     PackageInfo packageInfo = await PackageInfo.fromPlatform();
     AppVersionStatus versionStatus = AppVersionStatus(
       localVersion: packageInfo.version,
     );
-    switch (Theme.of(context).platform) {
+    switch (Theme.of(context!).platform) {
       case TargetPlatform.iOS:
         final id = iOSId ?? packageInfo.packageName;
         versionStatus = await getiOSAtStoreVersion(id, versionStatus);
@@ -45,8 +45,8 @@ class CheckVersion {
     if (versionStatus == null) {
       return null;
     }
-    List storeVersion = versionStatus.storeVersion.split(".");
-    List currentVersion = versionStatus.localVersion.split(".");
+    List storeVersion = versionStatus.storeVersion!.split(".");
+    List currentVersion = versionStatus.localVersion!.split(".");
     if (storeVersion.length < currentVersion.length) {
       int missValues = currentVersion.length - storeVersion.length;
       for (int i = 0; i < missValues; i++) {
@@ -70,8 +70,8 @@ class CheckVersion {
   }
 
   alertIfAvailable(String androidApplicationId, String iOSAppId) async {
-    AppVersionStatus versionStatus = await getVersionStatus();
-    if (versionStatus != null && versionStatus.canUpdate) {
+    AppVersionStatus? versionStatus = await getVersionStatus();
+    if (versionStatus != null && versionStatus.canUpdate!) {
       showUpdateDialog(androidApplicationId, iOSAppId,
           versionStatus: versionStatus);
     }
@@ -115,7 +115,7 @@ class CheckVersion {
   void showUpdateDialog(
     String androidApplicationId,
     String iOSAppId, {
-    AppVersionStatus versionStatus,
+    AppVersionStatus? versionStatus,
     String message = "You can now update this app from store.",
     String titleText = 'Update Available',
     String dismissText = 'Later',
@@ -124,15 +124,15 @@ class CheckVersion {
     Text title = Text(titleText);
     final content = Text(message);
     Text dismiss = Text(dismissText);
-    final dismissAction = () => Navigator.pop(context);
+    final dismissAction = () => Navigator.pop(context!);
     Text update = Text(updateText);
     final updateAction = () {
       _launchAppStore(androidApplicationId, iOSAppId);
-      Navigator.pop(context);
+      Navigator.pop(context!);
     };
-    final platform = Theme.of(context).platform;
+    final platform = Theme.of(context!).platform;
     showDialog(
-      context: context,
+      context: context!,
       builder: (BuildContext context) {
         return platform == TargetPlatform.iOS
             ? CupertinoAlertDialog(
